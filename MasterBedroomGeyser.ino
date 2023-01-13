@@ -97,8 +97,6 @@ void sysProvEvent(arduino_event_t *sys_event)
     }
 }
 void IRAM_ATTR stop_timer() {
-        int error = esp_timer_is_active(timer);
-        Serial.printf("return code esp_time_is_active= %d, onceonly : %d, isCurrent:%d \n", error,onceonly,isCurrent);
         delay(100);
         
          if (esp_timer_is_active(timer)) 
@@ -166,7 +164,8 @@ void IRAM_ATTR write_callback(Device *device, Param *param, const param_val_t va
             my_device.updateAndReportParam(PowerState, "");
 
             
-         my_device.updateAndReportParam(powerS, relay_state);
+        // my_device.updateAndReportParam(powerS, relay_state);
+        param->updateAndReport(val);
 
          Serial.printf(" write_callback:onceonly : %d, isCurrent:%d : relay_state=%d remaining_time :%d\n", onceonly,isCurrent, relay_state, remaining_time);
 
@@ -182,7 +181,7 @@ void IRAM_ATTR write_callback(Device *device, Param *param, const param_val_t va
          }
                             
     } else if (strcmp(param_name, "Duration") == 0) {
-        Serial.printf("\nReceived value = %d for %s - %s\n", val.val.i, device_name, param_name);
+        //Serial.printf("\nReceived value = %d for %s - %s\n", val.val.i, device_name, param_name);
         param->updateAndReport(val);
         remaining_time = val.val.i; 
         my_device.updateAndReportParam(remaining, remaining_time); // update remaining time to the value given
@@ -318,7 +317,7 @@ void loop()
         onceonly=0;
         remaining_time=DEFAULT_DURATION_LEVEL;
         // set the default duration level
-        my_device.updateAndReportParam(Duration, DEFAULT_DURATION_LEVEL); // required to turn off power on app and report it back
+        //my_device.updateAndReportParam(Duration, DEFAULT_DURATION_LEVEL); // required to turn off power on app and report it back
 
 
       }  
