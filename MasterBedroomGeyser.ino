@@ -40,6 +40,7 @@ volatile int isCurrent=1; // default 15A is on
 
 
 int remaining_time=DEFAULT_DURATION_LEVEL; // used to track remaining time using timer
+int duration = DEFAULT_DURATION_LEVEL; // duration slider
 
 bool relay_state = false;  // intial state of relay
 
@@ -172,18 +173,20 @@ void IRAM_ATTR write_callback(Device *device, Param *param, const param_val_t va
        
          if ((relay_state==false) ) // turn off the timer once the geyser switch is off
                remaining_time=0;                  
-         else
-            my_device.updateAndReportParam(remaining, remaining_time);
+        // else // commented feb 4 2023
+         //   my_device.updateAndReportParam(remaining, remaining_time);
             
          if ((relay_state == true) && (remaining_time==0)) {
             onceonly=0;  
-            remaining_time=DEFAULT_DURATION_LEVEL;
+            remaining_time=duration;
+            my_device.updateAndReportParam(remaining, remaining_time); // update remaining time to the value given to Duration
          }
                             
     } else if (strcmp(param_name, "Duration") == 0) {
         //Serial.printf("\nReceived value = %d for %s - %s\n", val.val.i, device_name, param_name);
         param->updateAndReport(val);
         remaining_time = val.val.i; 
+        duration = remaining_time; // added for next switch on
         my_device.updateAndReportParam(remaining, remaining_time); // update remaining time to the value given
     }
 }
@@ -315,7 +318,7 @@ void loop()
         Serial.printf("Main loop:Came to stop_timer loop\n");
         stop_timer();
         onceonly=0;
-        remaining_time=DEFAULT_DURATION_LEVEL;
+       // remaining_time=DEFAULT_DURATION_LEVEL; not required
         // set the default duration level
         //my_device.updateAndReportParam(Duration, DEFAULT_DURATION_LEVEL); // required to turn off power on app and report it back
 
